@@ -1,0 +1,64 @@
+==========
+Compile
+==========
+
+$ cd src
+$ make F90=<f90 compiler>
+
+This will generate a binary "flac".
+
+Supported compilers:
+gfortran -- GNU (default), v4.2 or later, otherwise openmp is disabled
+ifort    -- Intel
+pgf90    -- PGI
+f90      -- Sun Studio
+
+The default is to build optimized binary with openmp. Several command line
+options can build other type of binaries.
+
+debug=1    -- debugging binary (detecting various coding errors at runtime)
+omp=0      -- disable openmp
+coverage=1 -- code coverage analysis (only for gfortran)
+gprof=1    -- profiling
+
+E.g. to make a debugging binary
+$ make debug=1
+
+
+==========
+Run
+==========
+
+To run the provided example input, execute following commands:
+$ cd ../examples
+$ rm *.0 sys.msg                           # delete old output files
+$ export OMP_NUM_THREADS=<# of CPU cores>  # you can skip this step if using ALL
+                                           # available CPU cores
+$ ../src/flac test-subduction.inp
+
+To restart a model from previous output, execute following commands:
+$ mv _contents.save _contents.rs
+$ ../src/flac test-subduction.inp
+
+The description of input parameters can be found in doc/ directory.
+
+
+==========
+Plot
+==========
+
+$ ../util/flac2vtk.py .
+
+This will generate a series of VTK files (*.vts), which can be visualized by
+several programs, e.g. ParaView, LLNL's VisIt, MayaVi.
+
+If you don't have 'numpy' package, there is a similar program in C, but you
+will need to compile the program first.
+
+$ cd ../util
+$ make
+$ cd ../examples
+$ ../util/flac2vtk .
+
+----
+by Eh Tan, Jan. 2011

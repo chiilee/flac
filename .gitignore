@@ -1,0 +1,32 @@
+syntax:glob
+
+# files created by build
+src/*.mod
+src/*.o
+src/flac
+src/0.patch
+util/*.pyc
+util/flac2vtk
+
+# files created by 'hg revert'
+*.orig
+
+# temporary files from vi
+*.swp
+
+# backup/temporary files from emacs
+*~
+.\#*
+
+# files created by coverage analysis
+src/*.gcda
+src/*.gcno
+src/*.gcov
+
+# directory for running tests
+src/tmp/
+src/tibet/
+
+# files from hg
+.hg
+.hgignore

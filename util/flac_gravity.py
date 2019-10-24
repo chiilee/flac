@@ -1,0 +1,133 @@
+#!/usr/bin/env python
+'''
+Read flac density and coordinate data and return gravity and topography at regular spacing.
+'''
+
+import sys
+import numpy as np
+import flac
+
+gn = 6.6726e-11
+ocean_density = 1030.
+
+
+def compute_gravity(frame):
+    ## read data
+    fl = flac.Flac()
+    x, z = fl.read_mesh(frame)  # in km
+    x *= 1e3
+    z *= 1e3
+
+    # surface coordinates
+    xx = x[:,0]
+    zz = z[:,0]
+    xmin = x[0,0]
+    xmax = x[-1,0]
+
+    # center of elements
+    cx, cz = flac.elem_coord(x, z)
+
+    # area of elements = 0.5 * | AC x BD | = 0.5 * |xdiag1*zdiag2 - xdiag2*zdiag1|
+    #  A -- D
+    #  |    |
+    #  B -- C
+    xdiag1 = x[0:-1, 0:-1] - x[1:, 1:]
+    zdiag1 = z[0:-1, 0:-1] - z[1:, 1:]
+    xdiag2 = x[1:, 0:-1] - x[0:-1, 1:]
+    zdiag2 = z[1:, 0:-1] - z[0:-1, 1:]
+    area = 0.5 * np.abs(xdiag1*zdiag2 - xdiag2*zdiag1)
+
+
+    rho = fl.read_density(frame)  # in kg/m^3
+
+    ## benchmark case: infinite-long cylinder with radius R
+    ## buried at depth D
+    #R = 10e3
+    #D = -150e3
+    #drho = 1000
+    #rho = np.zeros(cx.shape)
+    #midx = 0.5 * (xmin + xmax)
+    #midz = 0.5 * z.min()
+    #dist2 = (x - midx)**2 + (z - D)**2
+    #rho[dist2 < R**2] = drho
+    #ocean_density = 0
+
+    mass = rho * area
+
+
+    ## calculate gravity at these points
+    # px in uniform spacing
+    px = np.linspace(xmin, xmax, num=5*fl.nx)
+    # pz is 4km above the highest topography to avoid high frequency oscillation
+    pz_height = np.max(zz) + 4e3
+    pz = np.ones(px.shape) * pz_height
+
+    # original topography defined in px grid
+    topo = np.interp(px, x[:,0], z[:,0])
+
+    ## contribution of material inside the model
+    grav = np.empty(px.shape)
+    for i in range(len(grav)):
+        dx = px[i] - cx
+        dz = pz[i] - cz
+        dist2 = (dx**2 + dz**2)
+        # downward component of gravity of an infinite long line source of density anomaly
+        # see Turcotte & Schubert, 1st Ed., Eq 5-104
+        grav[i] = 2 * gn * np.sum(mass * dz / dist2)
+
+    ## contribution of ocean
+    for i in range(fl.nx-1):
+        midz = 0.5 * (zz[i] + zz[i+1])
+        if midz < 0:
+            midx = 0.5 * (xx[i] + xx[i+1])
+            m = (xx[i+1] - xx[i]) * -midz * ocean_density
+            dx = px - midx
+            dz = pz - midz
+            dist2 = (dx**2 + dz**2)
+            grav += 2 * gn * m * dz / dist2
+
+    # contribution of material outside left boundary
+    # assuming the leftmost element extend to negative infinity
+    # see Turcotte & Schubert, 1st Ed., Eq 5-106
+    for i in range(fl.nz-1):
+        sigma = rho[0,i] * (z[0,i] - z[0,i+1])
+        dx = px - xmin
+        dz = pz - 0.5 * (z[0,i] + z[0,i+1])
+        angle = np.arctan2(dx, dz)
+        grav += 2 * gn * sigma * (0.5*np.pi - angle)
+
+    if zz[0] < 0:
+        sigma = ocean_density * -zz[0]
+        dx = px - xmin
+        dz = pz - 0.5 * zz[0]
+        angle = np.arctan2(dx, dz)
+        grav += 2 * gn * sigma * (0.5*np.pi - angle)
+
+
+    # ditto for right boundary
+    for i in range(fl.nz-1):
+        sigma = rho[-1,i] * (z[-1,i] - z[-1,i+1])
+        dx = xmax - px
+        dz = pz - 0.5 * (z[-1,i] + z[-1,i+1])
+        angle = np.arctan2(dx, dz)
+        grav += 2 * gn * sigma * (0.5*np.pi - angle)
+
+    if zz[-1] < 0:
+        sigma = ocean_density * -zz[-1]
+        dx = xmax - px
+        dz = pz - 0.5 * zz[-1]
+        angle = np.arctan2(dx, dz)
+        grav += 2 * gn * sigma * (0.5*np.pi - angle)
+
+    ##
+    grav -= np.mean(grav)
+
+    return px, topo, grav
+
+
+if __name__ == '__main__':
+    frame = int(sys.argv[1])
+
+    px, topo, gravity = compute_gravity(frame)
+    flac.printing(px, topo, gravity)
+
