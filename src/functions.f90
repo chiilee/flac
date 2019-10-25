@@ -78,6 +78,19 @@ end function stressII
 
 
 !==================================================
+! Get the largest eigenvalue and its eigenvector (with its x-component
+! fixed to 1) of the deviatoric of a symmetric 2x2 matrix
+subroutine eigen2x2(a11, a22, a12, eigval1, eigvecy1)
+include 'precision.inc'
+
+adif = 0.5 * (a11 - a22)
+eigval1 = sqrt(adif**2 + a12**2)
+eigvecy1 = (eigval1 - adif) / a12
+
+end subroutine eigen2x2
+
+
+!==================================================
 subroutine SysMsg( message )
 include 'precision.inc'
 include 'params.inc'

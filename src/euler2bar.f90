@@ -55,8 +55,8 @@ do j = 1, nz-1
         if(inc .eq. 1) then
             ! If the marker is found, that means its current element is
             ! to far away from its original element
-            write(msg,*) 'Found at (i,j)', i, j, ' Might need more frequent remeshing?'
-            call SysMsg(msg)
+            !!!write(msg,*) 'Found at (i,j)', i, j, ' Might need more frequent remeshing?'
+            !!!call SysMsg(msg)
             ii = i
             jj = j
             return

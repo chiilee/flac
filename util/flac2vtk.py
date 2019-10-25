@@ -3,6 +3,7 @@
 '''Convert the binary output of flac to VTK (vts) files.
 '''
 
+from __future__ import print_function
 import sys, os
 import zlib, base64
 import numpy as np
@@ -27,9 +28,10 @@ def main(path, start=1, end=-1):
         end = fl.nrec
 
     for i in range(start, end+1):
-        print 'Writing record #%d, model time=%.3e' % (i, fl.time[i-1])
+        print ('Writing record #%d, model time=%.3e' % (i, fl.time[i-1]), end='\r')
+	sys.stdout.flush()
         fvts = open('flac.%06d.vts' % i, 'w')
-        vts_header(fvts, nex, nez)
+        vts_header(fvts, nex, nez, fl.time[i-1], fl.steps[i-1])
 
         # node-based field
         fvts.write('  <PointData>\n')
@@ -56,12 +58,17 @@ def main(path, start=1, end=-1):
         srat = a
         vts_dataarray(fvts, a.swapaxes(0,1), 'Strain rate')
 
+
         a = fl.read_eII(i)
         eii = a
         vts_dataarray(fvts, a.swapaxes(0,1), 'eII')
 
         a = fl.read_density(i)
         vts_dataarray(fvts, a.swapaxes(0,1), 'Density')
+
+        exx, ezz, exz = fl.read_strain(i)
+        e1 = compute_p_axis(exx, ezz, exz)
+        vts_dataarray(fvts, e1.swapaxes(0,1), 'Strain 1-axis', 3)
 
         a = fl.read_aps(i)
         vts_dataarray(fvts, a.swapaxes(0,1), 'Plastic strain')
@@ -121,19 +128,18 @@ def main(path, start=1, end=-1):
 
 def compute_p_axis(sxx, szz, sxz):
     mag = np.sqrt(0.25*(sxx - szz)**2 + sxz**2)
-    theta = 0.5 * np.arctan2(2*sxz, sxx-szz)
-    cost = np.cos(theta)
-    sint = np.sin(theta)
 
-    p_axis_x = mag * sint
-    p_axis_z = mag * cost
+    xl = sxz
+    zl = mag - 0.5*(sxx - szz)
+    tiny = 1e-40  # small number to prevent overflow upon division
+    tangentl = np.hypot(xl, zl) + tiny
 
     # VTK requires vector field (velocity, coordinate) has 3 components.
     # Allocating a 3-vector tmp array for VTK data output.
     nx, nz = sxx.shape
     tmp = np.zeros((nx, nz, 3), dtype=sxx.dtype)
-    tmp[:,:,0] = p_axis_x
-    tmp[:,:,1] = p_axis_z
+    tmp[:,:,0] = mag * xl / tangentl
+    tmp[:,:,1] = mag * zl / tangentl
     return tmp
 
 
@@ -170,21 +176,29 @@ def vts_dataarray(f, data, data_name=None, data_comps=None):
         header[2] = len(a)
         b = zlib.compress(a)
         header[3] = len(b)
-        f.write(base64.standard_b64encode(header))
-        f.write(base64.standard_b64encode(b))
+        f.write(base64.standard_b64encode(header).decode('ascii'))
+        f.write(base64.standard_b64encode(b).decode('ascii'))
     else:
         data.tofile(f, sep=' ')
     f.write('\n</DataArray>\n')
     return
 
 
-def vts_header(f, nex, nez):
+def vts_header(f, nex, nez, time, step):
     f.write(
 '''<?xml version="1.0"?>
 <VTKFile type="StructuredGrid" version="0.1" byte_order="LittleEndian" compressor="vtkZLibDataCompressor">
 <StructuredGrid WholeExtent="0 {0} 0 {1} 0 0">
+<FieldData>
+  <DataArray type="Float32" Name="TIME" NumberOfTuples="1" format="ascii">
+    {2}
+  </DataArray>
+  <DataArray type="Float32" Name="CYCLE" NumberOfTuples="1" format="ascii">
+    {3}
+  </DataArray>
+</FieldData>
 <Piece Extent="0 {0} 0 {1} 0 0">
-'''.format(nex, nez))
+'''.format(nex, nez, time, step))
     return
 
 
@@ -200,11 +214,11 @@ def vts_footer(f):
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print '''usage: flac2vtk.py path [step_min [step_max]]
+        print('''usage: flac2vtk.py path [step_min [step_max]]
 
 Processing flac data output to VTK format.
 If step_max is not given, processing to latest steps
-If both step_min and step_max are not given, processing all steps'''
+If both step_min and step_max are not given, processing all steps''')
         sys.exit(1)
 
     path = sys.argv[1]

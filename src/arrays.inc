@@ -1,7 +1,7 @@
 ! -*- F90 -*-
 
 !!! maximum number of ELEMENTS !!!
-parameter(mnz=200, mnx=700)
+parameter(mnz=300, mnx=700)
 parameter(max_markers_per_elem=32)
 
 common /phase_arrays/ iphase(mnz,mnx), nphase_counter(20,mnz,mnx), phase_ratio(20,mnz,mnx)

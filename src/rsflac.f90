@@ -226,7 +226,7 @@ do n = 1, nmarkers
         endif
         ! recording the id of markers belonging to surface elements
         ntopmarker(i) = ntopmarker(i) + 1
-        itopmarker(ntopmarker(i), i) = n + 1
+        itopmarker(ntopmarker(i), i) = n 
     end if
 
     nphase_counter(mark(n)%phase,j,i) = nphase_counter(mark(n)%phase,j,i) + 1

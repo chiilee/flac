@@ -74,7 +74,7 @@ def interpolate(frame, field):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print __doc__
+        #print __doc__
         exit(1)
 
     frame = int(sys.argv[1])

@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 try:
     import numpy as np
 except ImportError:
-    print 'Error: Failed importing "numpy" module.'
-    print 'Please install the module and add it to PYTHONPATH environment variable.'
+    print('Error: Failed importing "numpy" module.')
+    print('Please install the module and add it to PYTHONPATH environment variable.')
     sys.exit(1)
 
 try:
@@ -110,6 +111,26 @@ class Flac(object):
         self._reshape_elemental_fields(density)
         return density
 
+    def read_strain(self, frame):
+        columns = 1
+        f = open('exx.0')
+        offset = (frame-1) * columns * self.nelements * sizeoffloat
+        f.seek(offset)
+        exx = self._read_data(f, columns, count=self.nelements)
+        self._reshape_elemental_fields(exx)
+
+        f = open('ezz.0')
+        offset = (frame-1) * columns * self.nelements * sizeoffloat
+        f.seek(offset)
+        ezz = self._read_data(f, columns, count=self.nelements)
+        self._reshape_elemental_fields(ezz)
+
+        f = open('exz.0')
+        offset = (frame-1) * columns * self.nelements * sizeoffloat
+        f.seek(offset)
+        exz = self._read_data(f, columns, count=self.nelements)
+        self._reshape_elemental_fields(exz)
+        return exx, ezz, exz
 
 
     def read_eII(self, frame):
@@ -410,7 +431,8 @@ def printing(*args, **kwd):
     stream = kwd.get('stream')
     if stream == None:
         stream = sys.stdout
-    elif isinstance(stream, (str, unicode)):
+    #elif isinstance(stream, (str, unicode)):
+    elif isinstance(stream, str):
         filename = stream
         stream = open(filename, 'w')
 
@@ -424,7 +446,7 @@ def printing(*args, **kwd):
     fmt = '%.15e' + '\t%.15e'*(narg-1)
 
     for items in zip(*args):
-        print >> stream, fmt % tuple(items)
+        print(fmt % tuple(items), file=stream)
     return
 
 
@@ -442,4 +464,4 @@ if __name__ == '__main__':
     # print (x, z, T) to screen
     printing(x, z, T)
 
-    print '# time =', fl.time[fl.nrec-1], 'Myrs'
+    print('# time =', fl.time[fl.nrec-1], 'Myrs')

@@ -187,7 +187,7 @@ OBJS = $(SRCS:.f90=.o)
 EXE = flac
 
 ## Is this a mercurial repository?
-HAS_HG := $(shell hg log -r tip --template '{node}' 2>/dev/null)
+HAS_HG := $(shell git log -r --template '{node}' 2>/dev/null)
 
 ########################################################################
 ## actions
@@ -209,24 +209,24 @@ $(OBJS): %.o : %.f90 params.inc arrays.inc
 take-snapshot:
 	@# snapshot of the code for building the executable
 	@echo Flags used to compile the code: > snapshot.diff
-	@echo '  '  CXX=$(CXX) opt=$(opt) openmp=$(openmp) >> snapshot.diff
-	@echo '  '  PATH=$(PATH) >> snapshot.diff
-	@echo '  '  LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) >> snapshot.diff
+	@echo '  '  CXX=$(CXX) debug=$(debug) openmp=$(omp) >> snapshot.diff
+	@echo '  '  PATH=`pwd ${PATH}` >> snapshot.diff
+	@echo '  '  LD_LIBRARY_PATH=`pwd ${LD_LIBRARY_PATH}` >> snapshot.diff
 ifneq (HAS_HG),)
 	@echo >> snapshot.diff
 	@echo >> snapshot.diff
 	@echo '==== Summary of the code ====' >> snapshot.diff
-	@hg summary >> snapshot.diff
-	@echo >> snapshot.diff
+	@git log >> snapshot.diff
+	@echo >>log snapshot.diff
 	@echo >> snapshot.diff
 	@echo '== Code modification (not checked-in) ==' >> snapshot.diff
-	@hg diff >> snapshot.diff
+	@git diff >> snapshot.diff
 	@echo >> snapshot.diff
 	@echo >> snapshot.diff
 	@echo '== Code modification (checked-in but not public) ==' >> snapshot.diff
-	@hg log --patch -r "draft()" >> snapshot.diff
+	@git log >> snapshot.diff
 else
-	@echo \'hg\' is not in path, cannot take code snapshot. >> snapshot.diff
+	@echo \'git\' is not in path, cannot take code snapshot. >> snapshot.diff
 endif
 
 

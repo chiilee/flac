@@ -9,8 +9,8 @@ import flac_gravity3 as fg
 
 
 # domain bounds
-left = -200
-right = 250
+left = -350
+right = 100
 up = 10
 down = -200
 dx = 1.5
@@ -22,7 +22,10 @@ def find_trench_index(z):
     # the highest point defines the forearc
     imax = zz.argmax()
     # the trench is the lowest point west of forearc
-    i = zz[:imax].argmin()
+    #i = zz[:imax].argmin()
+    # the trench is the lowest point east of forearc
+    i = zz[imax:].argmin()+imax
+
     return i
 
 
@@ -106,7 +109,7 @@ psfile = 'result3.%d.ps' % frame
 pngfile = 'result3.%d.png' % frame
 phgrd = 'phase3.%d.grd' % frame
 tgrd = 'temperature3.%d.grd' % frame
-phcpt = '/home/summer-tan2/flac/util/phase15.cpt'
+phcpt = '/home/chiilee/git-flac/flac/util/phase15.cpt'
 
 xmin = xtrench + left
 xmax = xtrench + right

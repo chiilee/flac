@@ -262,7 +262,7 @@ subroutine resurface
           ! extrusion, add an arc marker
           n_to_add = ceiling(chgtopo2 / elz * kinc)
           dz = chgtopo2 / elz / (n_to_add+1)
-          print *, 'add arc', i, chgtopo2, elz, n_to_add, dz
+          !print *, 'add arc', i, chgtopo2, elz, n_to_add, dz
           do ii = 1, n_to_add
               call add_marker_at_top(i, dz*ii, elz, karc1, nmarkers)
           enddo

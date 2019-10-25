@@ -11,10 +11,10 @@ from flac2vtk import vts_dataarray
 
 # filtering markers to only those within the domain bounds (in km)
 filtering = True
-xmin = 300
-xmax = 700
-zmin = -50
-zmax = 100
+xmin = 500
+xmax = 1000
+zmin = -500
+zmax = 50
 
 
 def filter_marker(x, z, age, phase, ID):
@@ -43,7 +43,7 @@ def main(path, start=1, end=-1):
             x, z, age, phase, ID = filter_marker(x, z, age, phase, ID)
         nmarkers = len(x)
 
-        print 'Writing record #%d, model time=%.3e, %d markers' % (i, fl.time[i-1], nmarkers)
+        print ('Writing record #%d, model time=%.3e, %d markers' % (i, fl.time[i-1], nmarkers))
         fvtp = open('flacmarker.%06d.vtp' % i, 'w')
         vtp_header(fvtp, nmarkers)
 
@@ -92,11 +92,11 @@ def vtp_footer(f):
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print '''usage: flacmarker2vtk.py path [step_min [step_max]]
+        print ('''usage: flacmarker2vtk.py path [step_min [step_max]]
 
 Processing flac marker output to VTK format.
 If step_max is not given, processing to latest steps
-If both step_min and step_max are not given, processing all steps'''
+If both step_min and step_max are not given, processing all steps''')
         sys.exit(1)
 
     path = sys.argv[1]
