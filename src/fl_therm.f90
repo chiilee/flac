@@ -260,10 +260,19 @@ do j = 1,nz
     temp(j, nx) = temp(j,nx-1)
 end do
 !$OMP end do
+
+! Boundary conditions: left = MOR (chii)
+!$OMP do
+do i = nx-4,nx
+  do j = 1,nz
+    temp(j,i)=1330.
+  end do
+end do
+!$OMP end do
 !$OMP end parallel
 
-time_t = time
 
+time_t = time
 
 ! HOOK
 ! Intrusions - see user_ab.f90

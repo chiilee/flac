@@ -226,10 +226,17 @@ zcord = 0.25*(cord(j,i,2)+cord(j+1,i,2)+cord(j,i+1,2)+cord(j+1,i+1,2))
 if (zcord < -660e3) then
     ! T-dep. viscosity
     ! eta=1e22 when T=1330 Celsius, inc. 10x when T is 200 deg lower
-    Eff_visc = 1e22 * exp( -0.0115 * (tmpr - 1330))
+    Eff_visc = 1e22 * exp( -0.0110 * (tmpr - 1330))
+    vis = min(v_max, max(v_min, vis))
     return
 elseif (zcord < -410e3) then
-    Eff_visc = 1e21 * exp( -0.0115 * (tmpr - 1330))
+    Eff_visc = 1e20 * exp( -0.0110 * (tmpr - 1330))
+    vis = min(v_max, max(v_min, vis))
+    return
+elseif (i .ge.nx-4) then
+    ! left = MOR (chii)
+    Eff_visc = 1e20
+    vis = min(v_max, max(v_min, vis))
     return
 endif
 

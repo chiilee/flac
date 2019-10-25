@@ -154,6 +154,7 @@ subroutine init_bc
               endif
           enddo
       endif
+
       !-------------------------------------------------------------
       !        top
       !-------------------------------------------------------------
@@ -178,6 +179,35 @@ subroutine init_bc
               endif
 
           enddo
+      endif
+
+      !-------------------------------------------------------------
+      !        middel
+      !-------------------------------------------------------------
+
+      if ( nofside(i) .eq. 5 ) then
+
+          do mid_nx=270,275  ! where velocity set on
+            x1 = cord ( nbc1(i),mid_nx, 2)
+            x2 = cord ( nbc2(i),mid_nx, 2)
+
+             do n = 1,ndbc
+                 numbp = n + nbc1(i) - 1
+                 x  = (cord (numbp,nx,2) - x1)/(x2-x1)
+
+                 if (nbc(i).eq.1.or.nbc(i).eq.10.or.nbc(i).eq.30)  &
+                      call velbc_mid (i,numbp,x,mid_nx)
+
+                 if (nbc(i).eq.2.or.nbc(i).eq. 20.or.nbc(i).eq.40) then
+                     nnop = nnop + 1
+                     numbp1 = numbp + 1
+                     xn = (cord (numbp1,nx,2) - x1)/(x2-x1)
+                     xa = 0.5 * (x+xn)
+                     call stressbc (i,nnop,numbp,numbp1,xa)
+                 endif
+             enddo
+
+         enddo
       endif
 
       ! viscosity-dependent velocity profile
@@ -313,6 +343,65 @@ subroutine velbc (i,numbp,x)
   return
 end subroutine velbc
 
+subroutine velbc_mid (i,numbp,x,mid_nx)
+
+  use arrays
+  include 'precision.inc'
+  include 'arrays.inc'
+  include 'params.inc'
+
+  pi2 = 2. * 3.14159
+
+  fun =  bca(i) + bcb(i)*x + bcc(i)*x*x   &
+       + (bcd(i)*cos (pi2*bce(i)*x) + bcf(i)*sin (pi2*bcg(i)*x))    &
+       *exp(-((x-bci(i))*bch(i))**2)
+
+  if (nofside(i).eq.1) then
+      ii1 = 1
+      jj1 = numbp
+  endif
+  if (nofside(i).eq.2) then
+      ii1 = numbp
+      jj1 = nz
+  endif
+  if (nofside(i).eq.3) then
+      ii1 = nx
+      jj1 = numbp
+  endif
+  if (nofside(i).eq.4) then
+      ii1 = numbp
+      jj1 = 1
+  endif
+  if (nofside(i).eq.5) then
+      ii1= mid_nx
+      jj1= numbp
+  endif
+  ! - x component
+  if (nbc(i) .eq. 10 ) then
+      ncod(jj1,ii1,1) = 1
+      if (abs(bc(jj1,ii1,1)).gt.0.) then
+          fun = bc(jj1,ii1,1)
+      endif
+      bc(jj1,ii1,1) = fun
+  endif
+
+  ! - z component
+  if (nbc(i) .eq. 1 ) then
+      ncod(jj1,ii1,2) = 1
+      bc  (jj1,ii1,2) = fun
+      !       write(*,*) ncod(jj1,ii1,2),bc(jj1,ii1,2)
+  endif
+
+  ! - y component
+
+  !            if (nbc(i) .eq. 30 ) then
+  !       ncod(numbp,3) = 1
+  !       bc  (numbp,3) = fun
+  !        write(*,*) numbp,ncod(numbp,3),bc(numbp,3)
+  !             endif
+
+  return
+end subroutine velbc_mid
 
 subroutine velbc_visc(i)
 
