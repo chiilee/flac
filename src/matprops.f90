@@ -240,6 +240,10 @@ elseif (i .ge.nx-4) then
     return
 endif
 
+if (zcord < -200e3) then
+    chamber(j,i)=0
+endif
+
 srat = e2sr(j,i)
 if( srat .eq. 0 ) srat = vbc/rxbo
 

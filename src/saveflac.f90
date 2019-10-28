@@ -72,6 +72,10 @@ open (1,file='temp.rs',access='direct',recl=nwords*kindr)
 write (1,rec=nrec) temp
 close (1)
 
+!melting history(chii)
+open (1,file='chamber.rs',access='direct',recl=nwords*kindr)
+write (1,rec=nrec) chamber
+close (1)
 
 ! 2-D (nx-1)*(nz-1) arrays - elements defined
 allocate( dum2(nz-1,nx-1) )

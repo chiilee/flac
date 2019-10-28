@@ -241,6 +241,12 @@ end do
 dummy(1:nzt,1:nxt) = temp(1:nzt,1:nxt)
 call rem_interpolate( dummy )
 temp(1:nzt,1:nxt) = dummy(1:nzt,1:nxt)
+
+! Melting history (in nodes)(chii)
+dummy(1:nzt,1:nxt) = chamber(1:nzt,1:nxt)
+call rem_interpolate( dummy )
+chamber(1:nzt,1:nxt) = dummy(1:nzt,1:nxt)
+
 deallocate( dummy )
 
 ! Changing the temperature of left-/right- most elements

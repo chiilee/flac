@@ -98,19 +98,47 @@ if( io_eII.eq.1 ) then
             De(j,i) = real(strainII(j,i))
         end do
     end do
-    open (1,file='eII.0',access='direct',recl=nwords*kindr) 
+    open (1,file='eII.0',access='direct',recl=nwords*kindr)
     write (1,rec=nrec) De
     close (1)
-endif
 
     do i = 1, nx-1
         do j = 1, nz-1
             De(j,i) = real(strainI(j,i))
         end do
     end do
-    open (1,file='eI.0',access='direct',recl=nwords*kindr) 
+    open (1,file='eI.0',access='direct',recl=nwords*kindr)
     write (1,rec=nrec) De
     close (1)
+
+    do i = 1, nx-1
+        do j = 1, nz-1
+            De(j,i) = real(strain(j,i,1))
+        end do
+    end do
+    open (1,file='exx.0',access='direct',recl=nwords*kindr)
+    write (1,rec=nrec) De
+    close (1)
+
+    do i = 1, nx-1
+        do j = 1, nz-1
+            De(j,i) = real(strain(j,i,2))
+        end do
+    end do
+    open (1,file='ezz.0',access='direct',recl=nwords*kindr)
+    write (1,rec=nrec) De
+    close (1)
+
+    do i = 1, nx-1
+        do j = 1, nz-1
+            De(j,i) = real(strain(j,i,3))
+        end do
+    end do
+    open (1,file='exz.0',access='direct',recl=nwords*kindr)
+    write (1,rec=nrec) De
+    close (1)
+
+endif
 
 ! Density 
 if( io_mark.eq.1 ) then
@@ -124,6 +152,41 @@ if( io_mark.eq.1 ) then
     close (1)
 endif
 
+! Chamber (chii)
+if( io_mark.eq.1 ) then
+   do i = 1, nx-1
+   do j = 1, nz-1
+          De(j,i) = real(chamber(j,i))
+   enddo
+   enddo
+    open (1,file='chamber.0',access='direct',recl=nwords*kindr)
+    write (1,rec=nrec) De
+    close (1)
+endif
+
+! Countmarker (chii)
+if( io_mark.eq.1 ) then
+   do i = 1, nx-1
+   do j = 1, nz-1
+          De(j,i) = real(countmarker(j,i))
+   enddo
+   enddo
+    open (1,file='countmarker.0',access='direct',recl=nwords*kindr)
+    write (1,rec=nrec) De
+    close (1)
+endif
+
+! Meltingmarker (chii)
+if( io_mark.eq.1 ) then
+   do i = 1, nx-1
+   do j = 1, nz-1
+          De(j,i) = real(meltingmarker(j,i))
+   enddo
+   enddo
+    open (1,file='meltingmarker.0',access='direct',recl=nwords*kindr)
+    write (1,rec=nrec) De
+    close (1)
+endif
 
 ! APS
 if( io_aps.eq.1 ) then

@@ -13,6 +13,10 @@ module arrays
   ! temporary array
   real*8, pointer, save :: junk2(:,:)
 
+  ! array for arc melting
+  integer, pointer, save :: meltingmarker(:,:)
+  integer, pointer, save :: countmarker(:,:)
+  real*8, pointer, save :: chamber(:,:)
 
 contains
 
@@ -37,6 +41,10 @@ contains
     allocate(ncod(nz, nx, 2))
 
     allocate(junk2(nz, nx))
+
+    allocate(meltingmarker(nz-1, nx-1))
+    allocate(countmarker(nz-1, nx-1))
+    allocate(chamber(nz-1, nx-1))
 
   end subroutine allocate_arrays
 

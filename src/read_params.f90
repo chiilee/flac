@@ -242,6 +242,10 @@ call AdvanceToNextInputLine( 4 )
 read(4,*)igeotherm,g_x0,g_y0c, g_amplitude,g_width 
 call AdvanceToNextInputLine( 4 )
 read(4,*) ny_inject, nelem_inject, rate_inject 
+call AdvanceToNextInputLine( 4 )
+read(4,*) weaken_width
+call AdvanceToNextInputLine( 4 )
+read(4,*) weaken_decay
 
 ! REMESHING
 call AdvanceToNextInputLine( 4 )

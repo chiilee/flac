@@ -57,6 +57,14 @@ real*8, parameter :: partial_melt_temp = 600.
 ! thickness of new crust
 real*8, parameter :: new_crust_thickness = 7.e3
 
+! open the file which recorded the location of partial melting
+open(2, file='D_melt.txt',status='unknown',access='append')
+
+do jj = 1,nz-1
+do ii = 1,nx-1
+        countmarker(jj,ii) = sum(nphase_counter(:,jj,ii))
+enddo
+enddo
 
 ! search the element for melting
 do jj = 1, nz-1
@@ -74,8 +82,10 @@ do i = 1, nx-1
       call newphase2marker(1,j-1,i,i,kocean1)
     end if
   end if
-end do
 
+end do
+! data of melting element(chii)
+meltingmarker(:,:)=0
 
 ! nelem_inject was used for magma injection, reused here for serpentization
 nelem_serp = nelem_inject
@@ -226,11 +236,15 @@ do kk = 1 , nmarkers
         !$OMP end critical (change_phase1)
         mark(kk)%phase = kmetased
     case (khydmant)
-        if (tmpr > ts(khydmant)) then
+        if (depth < 87.e3) then
+            tshydmant=(1100.-760.)*(depth-87.e3)/(0.e3-87.e3)+760.-(depth*3e-4)
+        else
+            tshydmant=(760.-875.)*(depth-175.e3)/(87.e3-175.e3)+875.-(depth*3e-4)
+        endif
+        if (tmpr > tshydmant) then
             ! area(j,i) is INVERSE of "real" DOUBLE area (=1./det)
             quad_area = 1./(area(j,i,1)+area(j,i,2))
             andesitic_melt_vol(i) = andesitic_melt_vol(i) + quad_area * vol_frac_melt / kinc
-
             !$OMP critical (change_phase1)
             nphase_counter(iph,j,i) = nphase_counter(iph,j,i) - 1
             nphase_counter(kmant1,j,i) = nphase_counter(kmant1,j,i) + 1
@@ -239,6 +253,9 @@ do kk = 1 , nmarkers
             jchanged(nchanged) = j
             !$OMP end critical (change_phase1)
             mark(kk)%phase = kmant2
+            !record the data for melting element(chii)
+            meltingmarker(j,i)=meltingmarker(j,i)+1
+            write(2,*) mark(kk)%ID, mark(kk)%x,mark(kk)%y,time/sec_year/1.e6,i,j,'3',depth
         endif
     end select
 
@@ -273,6 +290,9 @@ do k = 1, nchanged
     aps(j,i) = max(aps(j,i) - junk2(j,i) / float(kinc), 0d0)
 
 enddo
+
+close(2)
+
 
 return
 end subroutine change_phase

@@ -58,7 +58,7 @@ def interpolate(frame, field):
         ph = flac.nearest_neighbor_interpolation2d(mx, mz, mphase, x, z)
         f = ph.astype(np.float32)
     elif field in ('temperature', 'aps', 'density', 'eII', 'sII',
-                   'sxx', 'szz', 'sxz', 'srII', 'pres', 'diss', 'visc'):
+                   'sxx', 'szz', 'sxz', 'srII', 'pres', 'diss', 'visc','chamber'):
         # read field
         cf = getattr(fl, 'read_'+field)(frame)
         cx, cz = flac.elem_coord(xx, zz)
