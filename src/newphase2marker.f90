@@ -56,6 +56,7 @@ real*8, parameter :: partial_melt_temp = 600.
 !real*8, parameter :: partial_melt_depth = -70.e3
 ! thickness of new crust
 real*8, parameter :: new_crust_thickness = 7.e3
+real*8, parameter :: new_crust_thickness_j = 6
 
 ! open the file which recorded the location of partial melting
 open(2, file='D_melt.txt',status='unknown',access='append')
@@ -67,12 +68,13 @@ enddo
 enddo
 
 ! search the element for melting
-do jj = 1, nz-1
+!do jj = 1, nz-1
    ! search for crustal depth
-   dep2 = 0.25*(cord(jj,1,2)+cord(jj+1,1,2)+cord(jj,2,2)+cord(jj+1,2,2))
-   if (cord(1,1,2) - dep2 >= new_crust_thickness) exit
-end do
-j = min(max(2, jj), nz-1)
+!   dep2 = 0.25*(cord(jj,1,2)+cord(jj+1,1,2)+cord(jj,2,2)+cord(jj+1,2,2))
+!   if (cord(1,1,2) - dep2 >= new_crust_thickness) exit
+!end do
+!j = min(max(2, jj), nz-1)
+j = new_crust_thickness_j
 
 do i = 1, nx-1
   iph = iphase(j,i)
