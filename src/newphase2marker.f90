@@ -263,8 +263,8 @@ do kk = 1 , nmarkers
         !$OMP end critical (change_phase1)
         mark(kk)%phase = kmetased
         !record the data for melting element(chii)
-        meltingmarker(j,i)=meltingmarker(j,i)+1
-        write(2,*) mark(kk)%ID, mark(kk)%x, mark(kk)%y, time/sec_year/1.e6,i,j, '2',depth
+        !#meltingmarker(j,i)=meltingmarker(j,i)+1
+        !#write(2,*) mark(kk)%ID, mark(kk)%x, mark(kk)%y, time/sec_year/1.e6,i,j, '2',depth
     case (khydmant)
         if (depth < 87.e3) then
             tshydmant=(1100.-760.)*(depth-87.e3)/(0.e3-87.e3)+760.-(depth*3e-4)
