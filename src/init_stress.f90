@@ -14,7 +14,7 @@ degrad = pi/180.
 
 n = 0
 do 51 i = 1,nx-1
-    if(iphase(1,i) == kocean1 .or. iphase(1,i) == kocean2) then
+    if(iphase(1,i) == kocean1 .or. iphase(1,i) == kocean2 .or. iphase(1,i) == kocean3) then
         ! oceanic crust under 8000 meter of ocean (density = 1030)
         rogh = -1030. * g * 8.e3
     else

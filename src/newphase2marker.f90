@@ -139,6 +139,7 @@ do kk = 1 , nmarkers
         do jbelow = min(j+1,nz-1), min(j+3,nz-1)
             if(phase_ratio(kocean1,jbelow,i) > 0.8 .or. &
                  phase_ratio(kocean2,jbelow,i) > 0.8 .or. &
+                 phase_ratio(kocean3,jbelow,i) > 0.8 .or. &
                  phase_ratio(karc1,jbelow,i) > 0.8 .or. &
                  phase_ratio(ksed1,jbelow,i) > 0.8) then
                 !$OMP critical (change_phase1)
@@ -180,6 +181,7 @@ do kk = 1 , nmarkers
         do jbelow = min(j+1,nz-1), min(j+nelem_serp,nz-1)
             if(phase_ratio(kocean1,jbelow,i) > 0.8 .or. &
                 phase_ratio(kocean2,jbelow,i) > 0.8 .or. &
+                phase_ratio(kocean3,jbelow,i) > 0.8 .or. &
                 phase_ratio(ksed1,jbelow,i) > 0.8) then
                 !$OMP critical (change_phase1)
                 nphase_counter(iph,j,i) = nphase_counter(iph,j,i) - 1
@@ -192,7 +194,7 @@ do kk = 1 , nmarkers
                 exit
             endif
         enddo
-    case (kocean0, kocean1, kocean2)
+    case (kocean0, kocean1, kocean2, kocean3)
         ! basalt -> eclogite
         ! phase change pressure
         trpres = -0.3e9 + 2.2e6*tmpr
@@ -246,7 +248,7 @@ do kk = 1 , nmarkers
         jchanged(nchanged) = j
         !$OMP end critical (change_phase1)
         mark(kk)%phase = khydmant
-    case (ksed1, ksed2)
+    case (ksed1, ksed2, ksed3)
         ! dehydration, sediment -> schist/gneiss
         ! from sediment solidus in Nichols et al., Nature, 1994
         if (tmpr < 650 .or. depth < 20e3) cycle

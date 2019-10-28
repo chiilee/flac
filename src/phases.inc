@@ -20,4 +20,4 @@ integer, parameter :: kweakmc = 15
 integer, parameter :: khydmant = 16
 integer, parameter :: ksed3 = 17
 integer, parameter :: kdehyeclg = 18
-
+integer, parameter :: kocean3 = 19
