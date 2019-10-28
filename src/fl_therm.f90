@@ -11,7 +11,7 @@ dimension flux(mnz,mnx,2,2), add_source(mnz,mnx)
 real moho(nx)
 real M_ratio, M_value
 
-
+real_partialmelting_ratio = 0.20
 heat_latent_magma = 0. !4.2d5  ! J/kg, latent heat of freezing magma
 
 ! real_area = 0.5* (1./area(n,t))
@@ -366,7 +366,7 @@ do i = 1,nx-1
         area_ele=1./(area(j,i,1)+area(j,i,2))
         area_LVW=(cord(j1,i,2)-cord(j2,i,2))*(cord(jm,i2,1)-cord(jm,i1,1))*0.5
 
-        M_value=1
+        M_value = real_partialmelting_ratio
         if( countmarker(j,i).eq.0) countmarker(j,i)=1
         M_ratio =(countmarker(j,i)*area_LVW)/(meltingmarker(j,i)*area_ele*(1-rate_inject))!M_ratio=(1/ratio)
         Mt=M_value/M_ratio
