@@ -36,7 +36,8 @@ common /rheol/ visc(20),den(20),alfa(20),beta(20),pln(20),acoef(20),eactiv(20),r
      imx1(20),imx2(20),imy1(20),imy2(20), &
      itx1(20),itx2(20),ity1(20),ity2(20), &
      nphasl,nzone_marker,nmarkers, iint_marker,iint_tracer,nzone_tracer, &
-     weaken_width, weaken_decay
+     weaken_width, weaken_max, weaken_launch, weaken_saturated, &
+     ys_weaken_launch, ys_weaken_ratio, weaken_decay
 
 common /inhomog/ ix1(50),ix2(50),iy1(50),iy2(50),inphase(50),igeom(50), &
      xinitaps(50), inhom

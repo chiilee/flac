@@ -245,6 +245,10 @@ read(4,*) ny_inject, nelem_inject, rate_inject
 call AdvanceToNextInputLine( 4 )
 read(4,*) weaken_width
 call AdvanceToNextInputLine( 4 )
+read(4,*) weaken_max, weaken_launch, weaken_saturated
+call AdvanceToNextInputLine( 4 )
+read(4,*) ys_weaken_launch, ys_weaken_ratio
+call AdvanceToNextInputLine( 4 )
 read(4,*) weaken_decay
 
 ! REMESHING
