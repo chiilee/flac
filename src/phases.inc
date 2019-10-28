@@ -18,3 +18,6 @@ integer, parameter :: keclg = 13
 integer, parameter :: karc1 = 14
 integer, parameter :: kweakmc = 15
 integer, parameter :: khydmant = 16
+integer, parameter :: ksed3 = 17
+integer, parameter :: kdehyeclg = 18
+

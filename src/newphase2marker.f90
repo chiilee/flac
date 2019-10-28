@@ -197,7 +197,7 @@ do kk = 1 , nmarkers
         ! phase change pressure
         trpres = -0.3e9 + 2.2e6*tmpr
         press = mantle_density * g * depth
-        if (tmpr < min_eclogite_temp .or. press < trpres) cycle
+        if (tmpr < min_eclogite_temp .or. depth < min_eclogite_depth .or. press <trpres) cycle
         !$OMP critical (change_phase1)
         nphase_counter(iph,j,i) = nphase_counter(iph,j,i) - 1
         nphase_counter(keclg,j,i) = nphase_counter(keclg,j,i) + 1
@@ -206,6 +206,29 @@ do kk = 1 , nmarkers
         jchanged(nchanged) = j
         !$OMP end critical (change_phase1)
         mark(kk)%phase = keclg
+    case (keclg)
+        ! eclogite -> dehydrated eclogite
+        if (depth < 100.e3) then
+            tsdehyeclg=650.
+        else
+            tsdehyeclg=(650.-800.)*(depth-200.e3)/(100.e3-200.e3)+800.-(depth*3e-4)
+        endif
+        if (tmpr > tsdehyeclg) then
+            ! area(j,i) is INVERSE of "real" DOUBLE area (=1./det)
+            quad_area = 1./(area(j,i,1)+area(j,i,2))
+            andesitic_melt_vol(i) = andesitic_melt_vol(i) + quad_area*vol_frac_melt / kinc
+            !$OMP critical (change_phase1)
+            nphase_counter(iph,j,i) = nphase_counter(iph,j,i) - 1
+            nphase_counter(kdehyeclg,j,i) = nphase_counter(kdehyeclg,j,i) + 1
+            nchanged = nchanged + 1
+            ichanged(nchanged) = i
+            jchanged(nchanged) = j
+            !$OMP end critical (change_phase1)
+            mark(kk)%phase = kdehyeclg
+            !record the data for melting element(chii)
+            meltingmarker(j,i)=meltingmarker(j,i)+1
+            write(2,*) mark(kk)%ID,mark(kk)%x,mark(kk)%y,time/sec_year/1.e6, i,j, '1',depth
+        endif
     case (kserp)
         ! dehydration, serpentinite -> hydrated mantle
         ! Phase diagram taken from Ulmer and Trommsdorff, Nature, 1995
@@ -235,6 +258,9 @@ do kk = 1 , nmarkers
         jchanged(nchanged) = j
         !$OMP end critical (change_phase1)
         mark(kk)%phase = kmetased
+        !record the data for melting element(chii)
+        meltingmarker(j,i)=meltingmarker(j,i)+1
+        write(2,*) mark(kk)%ID, mark(kk)%x, mark(kk)%y, time/sec_year/1.e6,i,j, '2',depth
     case (khydmant)
         if (depth < 87.e3) then
             tshydmant=(1100.-760.)*(depth-87.e3)/(0.e3-87.e3)+760.-(depth*3e-4)
