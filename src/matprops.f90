@@ -274,10 +274,23 @@ if (iint_marker.ne.1) then
     !vis_peierls = sIImax / srat / 2
     !if( vis .gt. vis_peierls ) vis = vis_peierls
 
-
-    ! Final cut-off
-    if (vis .lt. v_min) vis = v_min
+    ! Final cut-off (max)
     if (vis .gt. v_max) vis = v_max
+
+    !Effect of melt (chii)
+
+    if (chamber(j,i) > weaken_launch) then
+           if (weaken_saturated > chamber(j,i)) then
+                vis_down = 1+(weaken_max-1)*(chamber(j,i)-weaken_launch)/(weaken_saturated-weaken_launch)
+           else
+                vis_down = weaken_max
+           endif
+           vis =vis * (1./vis_down)
+    endif
+
+    ! Final cut-off (min)
+    if (vis .lt. v_min) vis = v_min
+
 
     Eff_visc = vis
 
@@ -322,6 +335,20 @@ else
     enddo
 
     Eff_visc = 1 / Eff_visc
+
+    !Effect of melt (chii)
+    if (chamber(j,i) > weaken_launch) then
+           if (weaken_saturated > chamber(j,i)) then
+                vis_down =1+(weaken_max-1)*(chamber(j,i)-weaken_launch)/(weaken_saturated-weaken_launch)
+           else
+                vis_down = weaken_max
+           endif
+           Eff_visc =Eff_visc * (1./vis_down)
+    endif
+
+    ! Final cut-off (min)
+    if (Eff_visc .lt. v_min) Eff_visc = v_min
+
 endif
 
 return
