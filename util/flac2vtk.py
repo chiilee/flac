@@ -29,7 +29,7 @@ def main(path, start=1, end=-1):
 
     for i in range(start, end+1):
         print ('Writing record #%d, model time=%.3e' % (i, fl.time[i-1]), end='\r')
-	sys.stdout.flush()
+        sys.stdout.flush()
         fvts = open('flac.%06d.vts' % i, 'w')
         vts_header(fvts, nex, nez, fl.time[i-1], fl.steps[i-1])
 

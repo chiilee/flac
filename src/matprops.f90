@@ -279,7 +279,7 @@ if (iint_marker.ne.1) then
 
     !Effect of melt (chii)
 
-    weak = 1./weaken_max
+    weak = weaken_max
     if (chamber(j,i) > weaken_launch) then
            if (weaken_saturated > chamber(j,i)) then
                 vis_down1 = log(weak)*(chamber(j,i)-weaken_launch)/(weaken_saturated-weaken_launch)
@@ -340,7 +340,7 @@ else
     Eff_visc = 1 / Eff_visc
 
     !Effect of melt (chii)
-    weak = 1./weaken_max
+    weak = weaken_max
     if (chamber(j,i) > weaken_launch) then
            if (weaken_saturated > chamber(j,i)) then
                 vis_down1 = log(weak)*(chamber(j,i)-weaken_launch)/(weaken_saturated-weaken_launch)
@@ -348,7 +348,7 @@ else
            else
                 vis_down2 = weak
            endif
-           vis =vis * vis_down2
+           Eff_visc = Eff_visc * vis_down2
     endif
 
     ! Final cut-off (min)
