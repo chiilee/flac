@@ -268,55 +268,37 @@ hardn = 0
 do iph = 1, nphase
     if(phase_ratio(iph,j,i) .lt. 0.01) cycle
 
-    if (chamber(j,i) < ys_weaken_launch .or. time/sec_year/1.e6 < 3.) then
-        if(pls_curr < plstrain1(iph)) then
-            ! no weakening yet
-            f = fric1(iph)
-            c = cohesion1(iph)
-            d = dilat1(iph)
-            h = 0
-        else if (pls_curr < plstrain2(iph)) then
-            ! Find current properties from linear interpolation
-            dpl = (pls_curr - plstrain1(iph)) / (plstrain2(iph) - plstrain1(iph))
-            f = fric1(iph) + (fric2(iph) - fric1(iph)) * dpl
-            d = dilat1(iph) + (dilat2(iph) - dilat1(iph)) * dpl
-            c = cohesion1(iph) + (cohesion2(iph) - cohesion1(iph)) * dpl
-            h = (cohesion2(iph) - cohesion1(iph)) / (plstrain2(iph) - plstrain1(iph))
-        else
-            ! saturated weakening
-            f = fric2(iph)
-            c = cohesion2(iph)
-            d = dilat2(iph)
-            h = 0
-        endif
-    !weakening due to melting (chii)
+    !weakening due to melting
+    if (chamber(j,i) < ys_threshold .or. time/sec_year/1.e6 < 3.) then
+        ys_down = (ys_weakratio-1)* chamber(j,i)/ys_threshold + 1
+    else if (chamber(j,i) < 0.25) then
+        ys_down = (0-ys_weakratio)* (chamber(j,i)-ys_threshold)/(0.25-ys_threshold) + ys_weakratio
     else
-        f1 = atan(tan(fric1(iph)*pi/180)*ys_weaken_ratio)*180/pi
-        f2 = atan(tan(fric2(iph)*pi/180)*ys_weaken_ratio)*180/pi
-        c1=cohesion1(iph)
-        c2=cohesion2(iph)
+        ys_down=0.
+    endif
 
-        if(pls_curr < plstrain1(iph)) then
-            ! no weakening yet
-            f = f1
-            c = c1
-            d = dilat1(iph)
-            h = 0
-        else if (pls_curr < plstrain2(iph)) then
-            ! Find current properties from linear interpolation
-            dpl = (pls_curr - plstrain1(iph)) / (plstrain2(iph) - plstrain1(iph))
-            f =  f1 + f2 - f1 * dpl
-            d = dilat1(iph) + (dilat2(iph) - dilat1(iph)) * dpl
-            c = c1 + (c2 - c1)* dpl
-            h = (c2 - c1) / (plstrain2(iph) -plstrain1(iph))
-        else
-            ! saturated weakening
-            f = f2
-            c = c2
-            d = dilat2(iph)
-            h = 0
+    f1 = atan(tan(fric1(iph)*pi/180)*ys_down)*180/pi
+    f2 = atan(tan(fric2(iph)*pi/180)*ys_down)*180/pi
 
-        endif
+    if(pls_curr < plstrain1(iph)) then
+        ! no weakening yet
+        f = f1
+        c = cohesion1(iph)
+        d = dilat1(iph)
+        h = 0
+    else if (pls_curr < plstrain2(iph)) then
+        ! Find current properties from linear interpolation
+        dpl = (pls_curr - plstrain1(iph)) / (plstrain2(iph) - plstrain1(iph))
+        f = f1 + (f2 - f1) * dpl
+        d = dilat1(iph) + (dilat2(iph) - dilat1(iph)) * dpl
+        c = cohesion1(iph) + (cohesion2(iph) - cohesion1(iph)) * dpl
+        h = (cohesion2(iph) - cohesion1(iph)) / (plstrain2(iph) - plstrain1(iph))
+    else
+        ! saturated weakening
+        f = f2
+        c = cohesion2(iph)
+        d = dilat2(iph)
+        h = 0
     endif
 
     ! using harmonic mean on friction and cohesion
