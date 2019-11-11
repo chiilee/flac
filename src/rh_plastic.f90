@@ -268,7 +268,8 @@ hardn = 0
 do iph = 1, nphase
     if(phase_ratio(iph,j,i) .lt. 0.01) cycle
 
-    if (chamber(j,i) < ys_weaken_launch .or. time/sec_year/1.e6 < 3.) then
+    if (chamber(j,i) < 0.001 .or. time/sec_year/1.e6 < 3.) then
+
         if(pls_curr < plstrain1(iph)) then
             ! no weakening yet
             f = fric1(iph)
@@ -289,17 +290,23 @@ do iph = 1, nphase
             d = dilat2(iph)
             h = 0
         endif
-    !weakening due to melting (chii)
     else
-        f1 = atan(tan(fric1(iph)*pi/180)*ys_weaken_ratio)*180/pi
-        f2 = atan(tan(fric2(iph)*pi/180)*ys_weaken_ratio)*180/pi
-        c1=cohesion1(iph)
-        c2=cohesion2(iph)
+        ! weakening due to melting (chii)
+        if (chamber(j,i) < ys_threshold) then
+            ys_down = (ys_weakratio-1)*(chamber(j,i)-0.001)/(ys_threshold-0.001)+1
+        else if (chamber(j,i) < 0.25) then
+            ys_down = (0-ys_weakratio)*(chamber(j,i)-ys_threshold)/(0.25-ys_threshold)+ys_weakratio
+        else
+            ys_down = 0.
+        endif
+        
+        f1 = atan(tan(fric1(iph)*pi/180)*ys_down)*180/pi
+        f2 = atan(tan(fric2(iph)*pi/180)*ys_down)*180/pi
 
         if(pls_curr < plstrain1(iph)) then
             ! no weakening yet
             f = f1
-            c = c1
+            c = cohesion1(iph)
             d = dilat1(iph)
             h = 0
         else if (pls_curr < plstrain2(iph)) then
@@ -307,12 +314,12 @@ do iph = 1, nphase
             dpl = (pls_curr - plstrain1(iph)) / (plstrain2(iph) - plstrain1(iph))
             f =  f1 + f2 - f1 * dpl
             d = dilat1(iph) + (dilat2(iph) - dilat1(iph)) * dpl
-            c = c1 + (c2 - c1)* dpl
-            h = (c2 - c1) / (plstrain2(iph) -plstrain1(iph))
+            c = cohesion1(iph) + (cohesion2(iph) - cohesion1(iph))* dpl
+            h = (cohesion2(iph) - cohesion1(iph)) / (plstrain2(iph) -plstrain1(iph))
         else
             ! saturated weakening
             f = f2
-            c = c2
+            c = cohesion2(iph)
             d = dilat2(iph)
             h = 0
 
