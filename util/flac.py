@@ -71,7 +71,6 @@ class Flac(object):
         self._reshape_nodal_fields(x, z)
         return x, z
 
-
     def read_vel(self, frame):
         columns = 2
         f = open('vel.0')
@@ -80,7 +79,6 @@ class Flac(object):
         vx, vz = self._read_data(f, columns)
         self._reshape_nodal_fields(vx, vz)
         return vx, vz
-
 
     def read_temperature(self, frame):
         columns = 1
@@ -100,7 +98,6 @@ class Flac(object):
         self._reshape_elemental_fields(chamber)
         return chamber
 
-
     def read_countmarker(self, frame):
         columns = 1
         f = open('countmarker.0')
@@ -118,6 +115,24 @@ class Flac(object):
         meltingmarker = self._read_data(f, columns, count=self.nelements)
         self._reshape_elemental_fields(meltingmarker)
         return meltingmarker
+
+    def read_fv(self, frame):
+        columns = 1
+        f = open('fv.0')
+        offset = (frame-1) * columns * self.nelements * sizeoffloat
+        f.seek(offset)
+        fv = self._read_data(f, columns, count=self.nelements)
+        self._reshape_elemental_fields(fv)
+        return fv
+
+    def read_fys(self, frame):
+        columns = 1
+        f = open('fys.0')
+        offset = (frame-1) * columns * self.nelements * sizeoffloat
+        f.seek(offset)
+        fys = self._read_data(f, columns, count=self.nelements)
+        self._reshape_elemental_fields(fys)
+        return fys
 
     def read_aps(self, frame):
         columns = 1

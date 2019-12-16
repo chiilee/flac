@@ -11,7 +11,7 @@ dimension flux(mnz,mnx,2,2), add_source(mnz,mnx)
 real moho(nx)
 real M_ratio, M_value
 
-real_partialmelting_ratio = 0.20
+real_partialmelting_ratio = 0.25
 heat_latent_magma = 0. !4.2d5  ! J/kg, latent heat of freezing magma
 
 ! real_area = 0.5* (1./area(n,t))
@@ -282,8 +282,8 @@ weaken = 1- weaken_decay*dt
 !   no attenuation after just restart
 if (nloop .eq. nloop_restarted) weaken=1
 
-do j = 1,nz
-  do i = 1,nx
+do j = 1,nz-1
+  do i = 1,nx-1
        chamber(j,i)=chamber(j,i)*weaken
        if (chamber(j,i)>=1) chamber(j,i)=0.99
   enddo

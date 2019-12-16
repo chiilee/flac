@@ -270,6 +270,7 @@ do iph = 1, nphase
 
     if (chamber(j,i) < 0.001 .or. time/sec_year/1.e6 < 3.) then
 
+        weakfactor(j,i,2) = 1.
         if(pls_curr < plstrain1(iph)) then
             ! no weakening yet
             f = fric1(iph)
@@ -299,6 +300,7 @@ do iph = 1, nphase
         else
             ys_down = 0.
         endif
+        weakfactor(j,i,2) = ys_down
         
         f1 = atan(tan(fric1(iph)*pi/180)*ys_down)*180/pi
         f2 = atan(tan(fric2(iph)*pi/180)*ys_down)*180/pi

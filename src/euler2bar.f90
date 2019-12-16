@@ -5,7 +5,7 @@ include 'precision.inc'
 include 'params.inc'
 include 'arrays.inc'
 
-character*200 msg
+!character*200 msg
 
 ! find the triangle in which the marker belongs
 

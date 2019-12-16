@@ -17,6 +17,7 @@ module arrays
   integer, pointer, save :: meltingmarker(:,:)
   integer, pointer, save :: countmarker(:,:)
   real*8, pointer, save :: chamber(:,:)
+  real*8, pointer, save :: weakfactor(:,:,:)
 
 contains
 
@@ -45,6 +46,7 @@ contains
     allocate(meltingmarker(nz-1, nx-1))
     allocate(countmarker(nz-1, nx-1))
     allocate(chamber(nz-1, nx-1))
+    allocate(weakfactor(nz-1, nx-1, 2))
 
   end subroutine allocate_arrays
 

@@ -279,21 +279,21 @@ if (iint_marker.ne.1) then
 
     !Effect of melt (chii)
 
-    weak = vis_weakratio
     if (chamber(j,i) > 0.001) then
            if (vis_threshold > chamber(j,i)) then
-                vis_down1 = log(weak)*chamber(j,i)/vis_threshold
+                vis_down1 = log(vis_weakratio)*chamber(j,i)/vis_threshold
                 vis_down2 = exp(vis_down1)
            else
-                vis_down2 = weak
+                vis_down2 = vis_weakratio
            endif
+           weakfactor(j,i,1) = vis_down2
            vis =vis * vis_down2
-
+    else
+           weakfactor(j,i,1) = 1.
     endif
 
     ! Final cut-off (min)
     if (vis .lt. v_min) vis = v_min
-
 
     Eff_visc = vis
 
@@ -340,15 +340,17 @@ else
     Eff_visc = 1 / Eff_visc
 
     !Effect of melt (chii)
-    weak = vis_weakratio
-    if (chamber(j,i) > 0.01) then
+    if (chamber(j,i) > 0.001) then
            if (vis_threshold > chamber(j,i)) then
-                vis_down1 = log(weak)*chamber(j,i)/vis_threshold
+                vis_down1 = log(vis_weakratio)*chamber(j,i)/vis_threshold
                 vis_down2 = exp(vis_down1)
            else
-                vis_down2 = weak
+                vis_down2 = vis_weakratio
            endif
+           weakfactor(j,i,1) = vis_down2 
            Eff_visc = Eff_visc * vis_down2
+    else
+           weakfactor(j,i,1) = vis_down2
     endif
 
     ! Final cut-off (min)

@@ -188,6 +188,29 @@ if( io_mark.eq.1 ) then
     close (1)
 endif
 
+! Weak factor (chii)
+if( io_mark.eq.1 ) then
+   do i = 1, nx-1
+   do j = 1, nz-1
+          De(j,i) = real(weakfactor(j,i,1))
+   enddo
+   enddo
+    open (1,file='fv.0',access='direct',recl=nwords*kindr)
+    write (1,rec=nrec) De
+    close (1)
+endif
+
+if( io_mark.eq.1 ) then
+   do i = 1, nx-1
+   do j = 1, nz-1
+          De(j,i) = real(weakfactor(j,i,2))
+   enddo
+   enddo
+    open (1,file='fys.0',access='direct',recl=nwords*kindr)
+    write (1,rec=nrec) De
+    close (1)
+endif
+
 ! APS
 if( io_aps.eq.1 ) then
     De(1:nz-1,1:nx-1) = real(aps(1:nz-1,1:nx-1))
