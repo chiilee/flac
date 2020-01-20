@@ -12,7 +12,7 @@ real moho(nx)
 real M_ratio, M_value
 
 real_partialmelting_ratio = 0.25
-heat_latent_magma = 0. !4.2d5  ! J/kg, latent heat of freezing magma
+heat_latent_magma = 4.0e5  ! J/kg, latent heat of freezing magma
 
 ! real_area = 0.5* (1./area(n,t))
 ! Calculate Fluxes in every triangle
@@ -58,8 +58,11 @@ do i = 1,nx-1
     ! area(j,i) is INVERSE of "real" DOUBLE area (=1./det)
     quad_area = 1./(area(j,i,1)+area(j,i,2))
 
-    temp(j,i  ) = temp(j,i  ) + andesitic_melt_vol(i  ) * heat_latent_magma / quad_area / cp_eff
-    temp(j,i+1) = temp(j,i+1) + andesitic_melt_vol(i+1) * heat_latent_magma / quad_area / cp_eff
+    temp(j  ,i  ) = temp(j  ,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.5 / quad_area / cp_eff
+    temp(j  ,i+1) = temp(j  ,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.5 / quad_area / cp_eff
+    temp(j+1,i  ) = temp(j+1,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.5 / quad_area / cp_eff
+    temp(j+1,i+1) = temp(j+1,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.5 / quad_area / cp_eff
+
 end do
 !$OMP end do
 
@@ -286,6 +289,15 @@ do j = 1,nz-1
   do i = 1,nx-1
        chamber(j,i)=chamber(j,i)*weaken
        if (chamber(j,i)>=1) chamber(j,i)=0.99
+
+       ! latent heat release by freezing magma
+       delta_chamber = chamber1 -chamber(j,i)
+       if (detla_chamber<=0) detla_chamber = 0
+       cp_eff = Eff_cp( j,i )
+       temp(j  ,i  ) = temp(j  ,i  ) + detla_chamber * heat_latent_magma * 0.25 / cp_eff
+       temp(j  ,i+1) = temp(j  ,i+1) + detla_chamber * heat_latent_magma * 0.25 / cp_eff
+       temp(j+1,i  ) = temp(j+1,i  ) + detla_chamber * heat_latent_magma * 0.25 / cp_eff
+       temp(j+1,i+1) = temp(j+1,i+1) + detla_chamber * heat_latent_magma * 0.25 / cp_eff
   enddo
 enddo
 
