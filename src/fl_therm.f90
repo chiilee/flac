@@ -51,17 +51,30 @@ dt_therm = dt
 !$OMP                  qs,real_area13,area_n,rhs)
 !$OMP do
 do i = 1,nx-1
-    j = 1  ! top
+    j = 2  ! top
     !iph = iphase(j,i)
     cp_eff = Eff_cp( j,i )
 
     ! area(j,i) is INVERSE of "real" DOUBLE area (=1./det)
     quad_area = 1./(area(j,i,1)+area(j,i,2))
 
-    temp(j  ,i  ) = temp(j  ,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.5 / quad_area / cp_eff
-    temp(j  ,i+1) = temp(j  ,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.5 / quad_area / cp_eff
-    temp(j+1,i  ) = temp(j+1,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.5 / quad_area / cp_eff
-    temp(j+1,i+1) = temp(j+1,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.5 / quad_area / cp_eff
+    ! influence of latent heat on surface
+    temp(j-1,i-1) = temp(j-1,i-1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j-1,i  ) = temp(j-1,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j-1,i+1) = temp(j-1,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j-1,i+2) = temp(j-1,i+2) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j  ,i-1) = temp(j  ,i-1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j  ,i  ) = temp(j  ,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j  ,i+1) = temp(j  ,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j  ,i+2) = temp(j  ,i+2) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j+1,i-1) = temp(j+1,i-1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j+1,i  ) = temp(j+1,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j+1,i+1) = temp(j+1,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j+1,i+2) = temp(j+1,i+2) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j+2,i-1) = temp(j+2,i-1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j+2,i  ) = temp(j+2,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j+2,i+1) = temp(j+2,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
+    temp(j+2,i+2) = temp(j+2,i+2) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
 
 end do
 !$OMP end do
@@ -290,7 +303,7 @@ do j = 1,nz-1
        chamber(j,i)=chamber(j,i)*weaken
        if (chamber(j,i)>=1) chamber(j,i)=0.99
 
-       ! latent heat release by freezing magma
+       ! latent heat release by freezing magma (in mantle wedge)
        delta_chamber = chamber1 -chamber(j,i)
        if (detla_chamber<=0) detla_chamber = 0
        cp_eff = Eff_cp( j,i )
