@@ -220,15 +220,17 @@ phasedat.inp   ; file with distribution of phase on the 2D grid (phasedat)
 ; ny_inject (0,-no,1-left,2-center), nelem_inject, rate_inject(m/s)
 ; Tan2: reuse nelem_inject for thickness of serpentinite layer above subducted oceanic crust
 0,         8,     0.07
+; latent heat of mantle (J/kg)
+4.0e5
 ;
-;Weakening wedge
-;weakened area width(km)
+; WEAKENING WEDGE
+; weakened area width(km)
 10.
-;viscosity weak ratio,    viscosity weak threshold
+; viscosity weak ratio,    viscosity weak threshold
 0.01,                     0.20
-;yield stress weak ratio, yield stress weak threshold
+; yield stress weak ratio, yield stress weak threshold
 0.1,                      0.07
-;lamda of weakening attenuation interval, N(t)=N*exp(-lamda*t)
+; lamda of weakening attenuation interval, N(t)=N*exp(-lamda*t)
 1.00e-14,
 ;
 ;=================================================================

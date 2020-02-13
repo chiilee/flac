@@ -12,7 +12,7 @@ real moho(nx)
 real M_ratio, M_value
 
 real_partialmelting_ratio = 0.25
-heat_latent_magma = 4.0e5  ! J/kg, latent heat of freezing magma
+!heat_latent_magma = 4.0e5  ! J/kg, latent heat of freezing magma
 
 ! real_area = 0.5* (1./area(n,t))
 ! Calculate Fluxes in every triangle
@@ -348,7 +348,7 @@ do j = 1,nz-1
 do i = 1,nx-1
     if (meltingmarker(j,i) .ne. 0) then
 
-      jm = (moho(i)+moho(i+1))/2
+      jm = int((moho(i)+moho(i+1))/2)
       j1 = 1 ! diamond top is at the surface
       j2 = j ! diamond bottom is at where the partial melting ouccred
       if (jm .ge. j2-1) jm = int((j1+j2)/2) !distingush case 1 & 2
