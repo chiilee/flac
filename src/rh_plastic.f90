@@ -295,10 +295,8 @@ do iph = 1, nphase
         ! weakening due to melting (chii)
         if (chamber(j,i) < ys_threshold) then
             ys_down = (ys_weakratio-1)*(chamber(j,i)-0.001)/(ys_threshold-0.001)+1
-        else if (chamber(j,i) < 0.25) then
-            ys_down = (0-ys_weakratio)*(chamber(j,i)-ys_threshold)/(0.25-ys_threshold)+ys_weakratio
-        else
-            ys_down = 0.
+        else 
+            ys_down = ys_weakratio
         endif
         weakfactor(j,i,2) = ys_down
         
