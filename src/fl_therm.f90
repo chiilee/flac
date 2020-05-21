@@ -8,7 +8,7 @@ include 'params.inc'
 include 'arrays.inc'
 
 dimension flux(mnz,mnx,2,2), add_source(mnz,mnx)
-real moho(nx)
+integer moho(nx-1)
 real M_ratio, M_value
 
 real_partialmelting_ratio = 0.25
@@ -46,38 +46,54 @@ dt_therm = dt
 !    return
 !endif
 
+!   find the z-index representing Moho in the x-direction
+do i = 1,nx-1
+do j = 1,nz-1
+
+  moho(i)=1
+  if (iphase(j,i).eq.4 .or. iphase(j,i).eq.9) then 
+    moho(i) = int(j)
+    exit
+  end if
+end do
+end do
+
+
+do i = 1, nx-1
+
+if (andesitic_melt_vol(i) .ne. 0) then
+
+    heatarea=0
+    heatarea_cp=0
+
+    do j = 2, moho(i)
+        
+        !iph = iphase(j,i)
+        cp_eff = Eff_cp( j,i )
+
+        ! area(j,i) is INVERSE of "real" DOUBLE area (=1./det)
+        quad_area = 1./(area(j,i,1)+area(j,i,2))
+
+        ! average
+        heatarea_cp = heatarea_cp + cp_eff * quad_area
+        heatarea = heatarea + quad_area
+
+    end do
+
+    heatarea_cp = heatarea_cp / heatarea
+    do j = 2, moho(i)+1
+       ! influence of latent heat on surface
+       temp(j ,i  ) = temp(j ,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.5 / heatarea / heatarea_cp
+       temp(j ,i+1) = temp(j ,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.5 / heatarea / heatarea_cp
+
+    end do
+end if
+end do
+
 !$OMP Parallel private(i,j,iph,cp_eff,cond_eff,dissip,diff,quad_area, &
 !$OMP                  x1,x2,x3,x4,y1,y2,y3,y4,t1,t2,t3,t4,tmpr, &
 !$OMP                  qs,real_area13,area_n,rhs)
-!$OMP do
-do i = 1,nx-1
-    j = 2  ! top
-    !iph = iphase(j,i)
-    cp_eff = Eff_cp( j,i )
 
-    ! area(j,i) is INVERSE of "real" DOUBLE area (=1./det)
-    quad_area = 1./(area(j,i,1)+area(j,i,2))
-
-    ! influence of latent heat on surface
-    temp(j-1,i-1) = temp(j-1,i-1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j-1,i  ) = temp(j-1,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j-1,i+1) = temp(j-1,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j-1,i+2) = temp(j-1,i+2) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j  ,i-1) = temp(j  ,i-1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j  ,i  ) = temp(j  ,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j  ,i+1) = temp(j  ,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j  ,i+2) = temp(j  ,i+2) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j+1,i-1) = temp(j+1,i-1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j+1,i  ) = temp(j+1,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j+1,i+1) = temp(j+1,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j+1,i+2) = temp(j+1,i+2) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j+2,i-1) = temp(j+2,i-1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j+2,i  ) = temp(j+2,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j+2,i+1) = temp(j+2,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-    temp(j+2,i+2) = temp(j+2,i+2) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / quad_area / cp_eff
-
-end do
-!$OMP end do
 
 !$OMP do
 do i = 1,nx-1
@@ -346,17 +362,6 @@ enddo
 
 dis = weaken_width*0.5*1.e+3
 
-!   find the z-index representing Moho in the x-direction
-do i = 1,nx
-  j=1
-  do while (iphase(j,i).eq.1 .or. iphase(j,i).eq.2 .or. &
-            iphase(j,i).eq.3 .or. iphase(j,i).eq.6 .or. &
-            iphase(j,i).eq.7 .or. iphase(j,i).eq.14)
-    moho(i)=j
-    j=j+1
-  end do
-end do
-
 do j = 1,nz-1
 do i = 1,nx-1
     if (meltingmarker(j,i) .ne. 0) then
@@ -368,12 +373,13 @@ do i = 1,nx-1
       if (jm .le. 3) jm = 3
 
 !   find the i1,i2 based on the wedge width which is from inputfile
-      do ii=1,nx
+      do ii=1,nx-1
         dis2 = cord(jm,i,1) - cord(jm,ii,1)
-        if (dis2 >= dis)then
+        if (dis2 >= dis) then
             i1 = ii-1
-        else if (dis2 >= (-1*dis)) then
+        else if (dis2 <= (-1*dis)) then
             i2 = ii+1
+            exit
         end if
       end do
 
@@ -390,7 +396,7 @@ do i = 1,nx-1
         y4 = cord(j,i+1,2)   !zmesh[x_index+1,z_index]
         area_ele=1./(area(j,i,1)+area(j,i,2))
         area_LVW=(cord(j1,i,2)-cord(j2,i,2))*(cord(jm,i2,1)-cord(jm,i1,1))*0.5
-
+        
         M_value = real_partialmelting_ratio
         if( countmarker(j,i).eq.0) countmarker(j,i)=1
         M_ratio =(countmarker(j,i)*area_LVW)/(meltingmarker(j,i)*area_ele*(1-rate_inject))!M_ratio=(1/ratio)
