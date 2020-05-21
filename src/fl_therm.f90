@@ -49,7 +49,6 @@ dt_therm = dt
 !   find the z-index representing Moho in the x-direction
 do i = 1,nx-1
 do j = 1,nz-1
-
   moho(i)=1
   if (iphase(j,i).eq.4 .or. iphase(j,i).eq.9) then 
     moho(i) = int(j)
@@ -60,13 +59,12 @@ end do
 
 
 do i = 1, nx-1
-
 if (andesitic_melt_vol(i) .ne. 0) then
 
     heatarea=0
     heatarea_cp=0
 
-    do j = 2, moho(i)
+    do j = 1, moho(i)
         
         !iph = iphase(j,i)
         cp_eff = Eff_cp( j,i )
@@ -81,10 +79,14 @@ if (andesitic_melt_vol(i) .ne. 0) then
     end do
 
     heatarea_cp = heatarea_cp / heatarea
-    do j = 2, moho(i)+1
+
+    do j = 1, moho(i)+1
        ! influence of latent heat on surface
-       temp(j ,i  ) = temp(j ,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.5 / heatarea / heatarea_cp
-       temp(j ,i+1) = temp(j ,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.5 / heatarea / heatarea_cp
+       temp(j  ,i  ) = temp(j  ,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / heatarea / heatarea_cp
+       temp(j  ,i+1) = temp(j  ,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / heatarea / heatarea_cp
+       temp(j+1,i  ) = temp(j+1,i  ) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / heatarea / heatarea_cp
+       temp(j+1,i+1) = temp(j+1,i+1) + andesitic_melt_vol(i) * heat_latent_magma * 0.25 / heatarea / heatarea_cp
+
 
     end do
 end if
@@ -384,23 +386,13 @@ do i = 1,nx-1
       end do
 
 ! find the total area(A) of LVW (km^2)
-! fluid effert = 1 * fliud_ratio/area ; fluid_ratio = 200
-        !find the area of this element
-        x1 = cord(j,i,1)
-        y1 = cord(j,i,2)
-        x2 = cord(j+1,i,1)   !xmesh[x_index,z_index+1]
-        y2 = cord(j+1,i,2)   !zmesh[x_index,z_index+1]
-        x3 = cord(j+1,i+1,1) !xmesh[x_index+1,z_index+1]
-        y3 = cord(j+1,i+1,2) !zmesh[x_index+1,z_index+1]
-        x4 = cord(j,i+1,1)   !xmesh[x_index+1,z_index]
-        y4 = cord(j,i+1,2)   !zmesh[x_index+1,z_index]
-        area_ele=1./(area(j,i,1)+area(j,i,2))
-        area_LVW=(cord(j1,i,2)-cord(j2,i,2))*(cord(jm,i2,1)-cord(jm,i1,1))*0.5
-        
-        M_value = real_partialmelting_ratio
-        if( countmarker(j,i).eq.0) countmarker(j,i)=1
-        M_ratio =(countmarker(j,i)*area_LVW)/(meltingmarker(j,i)*area_ele*(1-rate_inject))!M_ratio=(1/ratio)
-        Mt=M_value/M_ratio
+      area_ele=1./(area(j,i,1)+area(j,i,2))
+      area_LVW=(cord(j1,i,2)-cord(j2,i,2))*(cord(jm,i2,1)-cord(jm,i1,1))*0.5
+
+      M_value = real_partialmelting_ratio
+      if( countmarker(j,i).eq.0) countmarker(j,i)=1
+      M_ratio =(countmarker(j,i)*area_LVW)/(meltingmarker(j,i)*area_ele*(1-rate_inject))!M_ratio=(1/ratio)
+      Mt=M_value/M_ratio
 
 !  make a record of the chamber value in the wedge range
       if (modulo((j1+j2),2).eq.0) then
