@@ -92,6 +92,8 @@ read(4,*) ynstressbc,ydrsides
 call AdvanceToNextInputLine( 4 )
 read(4,*) nofbc
 call AdvanceToNextInputLine( 4 )
+read(4,*) nxbc1, nxbc2
+call AdvanceToNextInputLine( 4 )
         do 21 i = 1,nofbc
         read(iu,*) nofside(i),nbc1(i),nbc2(i),nbc(i),  &
         bca(i),bcb(i),bcc(i),  &

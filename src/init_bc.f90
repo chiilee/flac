@@ -187,7 +187,7 @@ subroutine init_bc
 
       if ( nofside(i) .eq. 5 ) then
 
-          do mid_nx=270,275  ! where velocity set on
+          do mid_nx = nxbc1, nxbc2  ! where velocity set on
             x1 = cord ( nbc1(i),mid_nx, 2)
             x2 = cord ( nbc2(i),mid_nx, 2)
 
