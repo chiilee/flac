@@ -35,6 +35,13 @@ time = rtime
 dt = rdt
 time_t = time
 
+! Read new crust thickness
+open (1,file='newOC.0',access='direct',recl=2*8)
+read (1,rec=nrec) newOC
+close (1)
+new_crust_thickness_index = newOC
+
+
 dvol = 0
 
 ! Coordinates and velocities

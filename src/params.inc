@@ -38,7 +38,8 @@ common /rheol/ visc(20),den(20),alfa(20),beta(20),pln(20),acoef(20),eactiv(20),r
      nphasl,nzone_marker,nmarkers, iint_marker,iint_tracer,nzone_tracer, &
      heat_latent_magma, weaken_width, &
      vis_weakratio, vis_threshold, &
-     ys_weakratio, ys_threshold, weaken_decay
+     ys_weakratio, ys_threshold, weaken_decay, &
+     new_crust_thickness_index 
 
 common /inhomog/ ix1(50),ix2(50),iy1(50),iy2(50),inphase(50),igeom(50), &
      xinitaps(50), inhom

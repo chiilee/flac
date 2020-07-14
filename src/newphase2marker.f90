@@ -54,9 +54,6 @@ real*8, parameter :: serpentine_temp = 550.
 ! temperature (C) and depth (m) of 10% partial melting of upper mantle.
 real*8, parameter :: partial_melt_temp = 600.
 !real*8, parameter :: partial_melt_depth = -70.e3
-! thickness of new crust
-real*8, parameter :: new_crust_thickness = 7.e3
-real*8, parameter :: new_crust_thickness_j = 6
 
 ! open the file which recorded the location of partial melting
 open(2, file='D_melt.txt',status='unknown',access='append')
@@ -67,15 +64,7 @@ do ii = 1,nx-1
 enddo
 enddo
 
-! search the element for melting
-!do jj = 1, nz-1
-   ! search for crustal depth
-!   dep2 = 0.25*(cord(jj,1,2)+cord(jj+1,1,2)+cord(jj,2,2)+cord(jj+1,2,2))
-!   if (cord(1,1,2) - dep2 >= new_crust_thickness) exit
-!end do
-!j = min(max(2, jj), nz-1)
-j = new_crust_thickness_j
-
+j = new_crust_thickness_index
 do i = 1, nx-1
   iph = iphase(j,i)
   if (iph==kmant1 .or. iph==kmant2) then
@@ -266,6 +255,7 @@ do kk = 1 , nmarkers
         !#meltingmarker(j,i)=meltingmarker(j,i)+1
         !#write(2,*) mark(kk)%ID, mark(kk)%x, mark(kk)%y, time/sec_year/1.e6,i,j, '2',depth
     case (khydmant)
+        ! hydrated mantle solidus in Grove et al., Nature, 2009
         if (depth < 87.e3) then
             tshydmant=(1100.-760.)*(depth-87.e3)/(0.e3-87.e3)+760.-(depth*3e-4)
         else
