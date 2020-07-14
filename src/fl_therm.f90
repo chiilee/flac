@@ -318,6 +318,7 @@ if (nloop .eq. nloop_restarted) weaken=1
 
 do j = 1,nz-1
   do i = 1,nx-1
+       chamber1 = chamber(j,i)
        chamber(j,i)=chamber(j,i)*weaken
        if (chamber(j,i)>=1) chamber(j,i)=0.99
 
